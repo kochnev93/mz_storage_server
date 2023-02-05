@@ -10,7 +10,6 @@ export async function addProduct(req, res) {
   });
 
   const { name, comment, unit, category, property, snAccounting } = req.body;
-  console.log(property, !!property.length);
 
   const token = req.headers.authorization.split(' ')[1];
   const decode = jwt_decode(token);
@@ -41,12 +40,22 @@ export async function addProduct(req, res) {
     return resultStr.join();
   };
 
-  const queryAddProduct = `
+
+  const queryLastIndex = `SELECT MAX(id_product) AS id FROM mz_products`;
+  let lastIndex = null;
+
+  const addProductNomenclature = `
   INSERT INTO mz_nomenclature 
   (id_category, name, id_unit, comment, accounting_sn, date_create, author ) 
-  VALUES ('${category.id}', '${name}', '${unit.id}', '${comment}', '${
-    snAccounting ? '1' : '0'
-  }', ( SELECT NOW() ), '${id_author}')`;
+  VALUES (
+    '${category.id}', 
+    '${name}', 
+    '${unit.id}', 
+    '${comment}', 
+    '${snAccounting ? '1' : '0'}', 
+    ( SELECT NOW() ), 
+    '${id_author}'
+    )`;
 
   const queryAddPropertyProduct = `
   INSERT INTO mz_product_characteristic 
@@ -55,10 +64,31 @@ export async function addProduct(req, res) {
   ${getSelectedProperty(property)}`;
 
   pool
-    .execute(queryAddProduct)
+    .execute(addProductNomenclature)
+    .then((result) => {
+      return pool.execute(queryLastIndex)
+    })
+    .then((result) => {
+      lastIndex = result[0][0].id;
+
+      const addProductMainTable = `
+      INSERT INTO mz_products 
+      (id_product, id_nomenclature, id_category, date_create, id_author)
+      VALUES (
+        '${lastIndex + 1}',
+        ( SELECT id FROM mz_nomenclature WHERE author='${id_author}' ORDER BY id DESC LIMIT 1 ),
+        '${category.id}',
+        ( SELECT NOW() ), 
+        '${id_author}'
+      )`;
+
+      return pool.execute(addProductMainTable)
+    })
     .then((result) => {
       res.json({ message: 'Товар добавлен' });
-      return property.length ? pool.execute(queryAddPropertyProduct) : undefined;
+      return property.length
+        ? pool.execute(queryAddPropertyProduct)
+        : undefined;
     })
     .catch(function (err) {
       console.log(err);

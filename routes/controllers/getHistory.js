@@ -62,6 +62,21 @@ export async function getProductHistoryById(req, res, next) {
     FROM mz_transfers mz_t
     WHERE mz_t.id_product IN (${productID})`;
 
+    // const historyReceipt = `
+    // SELECT 
+    //   mz_r.id_receipt,
+    //   mz_w.warehouse_title, 
+    //   mz_r.contract,
+    //   mz_r.url_megaplan,
+    //   mz_r.date,
+    //   mz_u.mz_user_login
+    // FROM mz_products mz_p
+    // JOIN mz_receipt mz_r ON mz_p.id_receipt = mz_r.id_receipt
+    // JOIN mz_users mz_u ON mz_u.id = mz_r.id_author
+    // JOIN mz_warehouse mz_w ON mz_w.id = mz_r.id_warehouse
+    // WHERE mz_p.id_product IN (${productID})
+    // `;
+
     const historyReceipt = `
     SELECT 
       mz_r.id_receipt,
@@ -70,11 +85,10 @@ export async function getProductHistoryById(req, res, next) {
       mz_r.url_megaplan,
       mz_r.date,
       mz_u.mz_user_login
-    FROM mz_products mz_p
-    JOIN mz_receipt mz_r ON mz_p.id_receipt = mz_r.id_receipt
+    FROM mz_receipt mz_r
     JOIN mz_users mz_u ON mz_u.id = mz_r.id_author
     JOIN mz_warehouse mz_w ON mz_w.id = mz_r.id_warehouse
-    WHERE mz_p.id_product IN (${productID})
+    WHERE mz_r.id_product IN (${productID})
     `;
 
     pool
