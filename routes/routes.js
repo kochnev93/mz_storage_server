@@ -10,6 +10,7 @@ import { getProperty } from './controllers/getProperty.js';
 import { getUnit } from './controllers/getUnit.js';
 import { getProductByCategory } from './controllers/receiptProduct/getProductByCategory.js';
 import { receiptProduct } from './controllers/receiptProduct/receiptProduct.js';
+import { rateProduct } from './controllers/rateProduct.js';
 import { transferProduct } from './controllers/transferProduct.js';
 import { getSnList } from './controllers/getSnList.js';
 import { getNomenclature } from './controllers/getNomenclature.js';
@@ -30,6 +31,7 @@ import authMiddleware from '../middleware/auth-middleware.js';
 
 
 
+
 const router = Router();
 
 router.get('/', (req, res) => {
@@ -38,7 +40,7 @@ router.get('/', (req, res) => {
 
 router.get('/test', cors(), test);
 router.post('/get_product/:id', cors(), getProductById);
-router.get('/get_product_history/:id', cors(), getProductHistoryById);
+router.post('/get_history', cors(), getProductHistoryById);
 router.post('/get_warehouse', cors(), getWarehouse);
 router.post('/get_category', cors(), getCategory);
 router.post('/get_unit', cors(), getUnit);
@@ -58,6 +60,9 @@ router.get('/get_property/:category_id', cors(), getProperty);
 // Receipt
 router.post('/receipt_product', cors(), receiptProduct);
 router.post('/get_receipt_products/:category_id', cors(), getProductByCategory);
+
+//Rate
+router.post('/rate_product', cors(), rateProduct);
 
 // Transfer
 router.post('/transfer_product', cors(), transferProduct);

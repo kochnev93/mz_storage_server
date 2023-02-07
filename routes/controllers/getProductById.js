@@ -29,7 +29,7 @@ export async function getProductById(req, res, next){
     JOIN mz_warehouse mz_w ON mz_w.id = '${warehouse_id}'
     JOIN mz_category mz_c ON mz_p.id_category = mz_c.id
     JOIN mz_nomenclature mz_n ON mz_p.id_nomenclature = mz_n.id
-    WHERE mz_p.id_product = '${product_id}'
+    WHERE mz_p.id_product = '${product_id}' AND mz_p.id_warehouse='${warehouse_id}'
     `;
 
     pool

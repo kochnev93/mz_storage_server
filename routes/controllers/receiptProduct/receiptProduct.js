@@ -28,7 +28,7 @@ export async function receiptProduct(req, res) {
     });
 
     return result.join();
-  };
+  }; 
 
   // Формируем массив с серийными номерами в запись для sql
   const getReceiptForQuery = (sn) => {
