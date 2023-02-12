@@ -105,7 +105,7 @@ export async function receiptProduct(req, res) {
         VALUES ('${lastIndex}', '${product[0].id_nomenclature}', '${product[0].category}', '${warehouse[0].id}', '${count}', ( SELECT NOW() ), '${id_author}')`;
 
         res.json({ data: 'Приход оформлен' });
-        return pool.execute(AddListRateProduct);
+        return pool.execute(AddListRateProduct); 
       })
       .catch(function (err) {
         console.log(err);

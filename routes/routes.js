@@ -16,10 +16,12 @@ import { getSnList } from './controllers/getSnList.js';
 import { getNomenclature } from './controllers/getNomenclature.js';
 import { getComments } from './controllers/getComments.js';
 import { addComment } from './controllers/addComment.js';
+import { getReceiptList } from './controllers/getReceiptList.js';
 
 import UserController from './controllers/user.js'
 import cors from 'cors';
 import authMiddleware from '../middleware/auth-middleware.js';
+
 
 
 
@@ -60,6 +62,7 @@ router.get('/get_property/:category_id', cors(), getProperty);
 // Receipt
 router.post('/receipt_product', cors(), receiptProduct);
 router.post('/get_receipt_products/:category_id', cors(), getProductByCategory);
+router.get('/get_receiptList', cors(), getReceiptList);
 
 //Rate
 router.post('/rate_product', cors(), rateProduct);
