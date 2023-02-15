@@ -17,10 +17,14 @@ import { getNomenclature } from './controllers/getNomenclature.js';
 import { getComments } from './controllers/getComments.js';
 import { addComment } from './controllers/addComment.js';
 import { getReceiptList } from './controllers/getReceiptList.js';
+import { getContragents } from './controllers/getContragents.js';
+import { getReceiptInfo } from './controllers/receiptProduct/getReceiptInfo.js';
 
 import UserController from './controllers/user.js'
 import cors from 'cors';
 import authMiddleware from '../middleware/auth-middleware.js';
+
+
 
 
 
@@ -50,6 +54,7 @@ router.post('/get_products', authMiddleware, getProduct);
 router.post('/addProduct', authMiddleware, addProduct);
 router.post('/get_sn_list', authMiddleware, getSnList);
 router.get('/get_nomenclature', authMiddleware, getNomenclature);
+router.post('/get_contragents', cors(), getContragents);
 // Users
 router.post('/register', cors(), UserController.registration);
 router.post('/auth', cors(), UserController.authorization);
@@ -63,6 +68,7 @@ router.get('/get_property/:category_id', cors(), getProperty);
 router.post('/receipt_product', cors(), receiptProduct);
 router.post('/get_receipt_products/:category_id', cors(), getProductByCategory);
 router.get('/get_receiptList', cors(), getReceiptList);
+router.get('/get_receipt_info/:id_receipt', cors(), getReceiptInfo );
 
 //Rate
 router.post('/rate_product', cors(), rateProduct);

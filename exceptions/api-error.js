@@ -19,4 +19,5 @@ export default class ApiError extends Error{
     static NoConnectDB(message, errors = []){
         return new ApiError(500, message, errors);
     }
+
 }

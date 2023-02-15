@@ -79,7 +79,7 @@ export async function getProductHistoryById(req, res, next) {
         mz_r.count,
         mz_r.contract,
         mz_r.url_megaplan,
-        mz_r.date,
+        mz_r.date, 
         mz_u.mz_user_login
       FROM mz_receipt mz_r
       JOIN mz_users mz_u ON mz_u.id = mz_r.id_author
