@@ -29,7 +29,7 @@ export async function receiptProduct(req, res, next) {
   const decode = jwt_decode(token);
   const id_author = decode.id;
 
-  // Последний id продукта в БД 
+  // Последний id продукта в БД
   const queryLastIndex = `SELECT MAX(id_product) AS id FROM mz_products`;
   let lastIndex = null;
 
@@ -46,6 +46,18 @@ export async function receiptProduct(req, res, next) {
         '${guarantee ? guarantee : '1900-01-01'}', 
         ( SELECT NOW() ), 
         '${id_author}'
+      )`;
+    });
+
+    return result.join();
+  };
+
+  // Формируем SQL запись значений для MZ_RECEIPT_DOCUMENT
+  const getReceiptDocument = (sn) => {
+    const result = sn.map((item, index) => {
+      return `(
+        (SELECT MAX(id_receipt) AS id FROM mz_receipt WHERE id_author='${id_author}'),
+        '${lastIndex + index}'
       )`;
     });
 
@@ -76,6 +88,21 @@ export async function receiptProduct(req, res, next) {
     return result.join();
   };
 
+
+// Begin
+if(!contragent){
+
+}//if-contragent
+
+
+
+
+
+
+
+
+
+
   // Добавление нового контрагента
   if (!contragent) {
     const queryAddContragent = `
@@ -102,8 +129,7 @@ export async function receiptProduct(req, res, next) {
       });
   }
 
-
-  // Начало
+  // Начало. Серийный учет
   if (product[0].accounting_sn) {
     pool
       .execute(queryLastIndex)
@@ -112,8 +138,6 @@ export async function receiptProduct(req, res, next) {
 
         const queryAddReceipt = `
         INSERT INTO mz_receipt (
-          id_product, 
-          id_nomenclature, 
           id_contragent, 
           id_warehouse, 
           id_category, 
@@ -122,19 +146,49 @@ export async function receiptProduct(req, res, next) {
           url_megaplan, 
           date, 
           id_author ) 
-        VALUES ${getReceiptForQuery(sn)}`;
+        VALUES (
+          ${
+            !contragent
+              ? `(SELECT id_contragent FROM mz_contragents WHERE inn_contragent='${newContragentINN}')`
+              : contragent[0].id
+          },
+          '${warehouse[0].id}', 
+          '${product[0].category}', 
+          '${product[0].accounting_sn ? sn.length : count}', 
+          '${contract}', 
+          '${url}', 
+          ( SELECT NOW() ), 
+          '${id_author}'
+        )`;
 
         return pool.execute(queryAddReceipt);
       })
       .then((result) => {
         const AddListProduct = `
-        INSERT INTO mz_products
-        (id_product, id_nomenclature, id_category, id_warehouse, sn, date_guarantee, date_create, id_author ) 
+        INSERT INTO mz_products (
+          id_product, 
+          id_nomenclature, 
+          id_category, 
+          id_warehouse, 
+          sn, 
+          date_guarantee, 
+          date_create, 
+          id_author ) 
         VALUES ${getSNForQuery(sn)}`;
 
-        res.json({ data: 'Приход оформлен' });
-
         return pool.execute(AddListProduct);
+      })
+      .then((result) => {
+        const AddListReceiptDocument = `
+        INSERT INTO mz_receipt_document (
+          id_receipt,
+          id_product ) 
+        VALUES ${getReceiptDocument(sn)}`;
+
+        return pool.execute(AddListReceiptDocument);
+      })
+      .then((result) => {
+        res.json({ data: 'Приход оформлен' });
       })
       .catch(function (err) {
         console.log(err);
@@ -144,6 +198,7 @@ export async function receiptProduct(req, res, next) {
         next(err);
       });
   } else {
+    // Начало. НЕ Серийный учет
     pool
       .execute(queryLastIndex)
       .then((result) => {
@@ -151,8 +206,6 @@ export async function receiptProduct(req, res, next) {
 
         const queryAddReceipt = `
         INSERT INTO mz_receipt (
-          id_product, 
-          id_nomenclature, 
           id_contragent, 
           id_warehouse, 
           id_category, 
@@ -160,16 +213,13 @@ export async function receiptProduct(req, res, next) {
           contract, 
           url_megaplan, 
           date, 
-          id_author 
-        ) 
+          id_author ) 
         VALUES (
-          '${lastIndex}', 
-          '${product[0].id_nomenclature}', 
           ${
             !contragent
               ? `(SELECT id_contragent FROM mz_contragents WHERE inn_contragent='${newContragentINN}')`
               : contragent[0].id
-          }, 
+          },
           '${warehouse[0].id}', 
           '${product[0].category}', 
           '${count}', 
@@ -177,7 +227,7 @@ export async function receiptProduct(req, res, next) {
           '${url}', 
           ( SELECT NOW() ), 
           '${id_author}'
-          )`;
+        )`;
 
         return pool.execute(queryAddReceipt);
       })
@@ -206,8 +256,22 @@ export async function receiptProduct(req, res, next) {
           '${id_author}'
         )`;
 
-        res.json({ data: 'Приход оформлен' });
         return pool.execute(AddListRateProduct);
+      })
+      .then((result) => {
+        const AddListReceiptDocument = `
+        INSERT INTO mz_receipt_document (
+          id_receipt,
+          id_product ) 
+        VALUES (
+          (SELECT MAX(id_receipt) AS id FROM mz_receipt WHERE id_author='${id_author}'),
+          '${lastIndex}'
+        )`;
+
+        return pool.execute(AddListReceiptDocument);
+      })
+      .then((result) => {
+        res.json({ data: 'Приход оформлен' });
       })
       .catch(function (err) {
         console.log(err);

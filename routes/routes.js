@@ -19,10 +19,14 @@ import { addComment } from './controllers/addComment.js';
 import { getReceiptList } from './controllers/getReceiptList.js';
 import { getContragents } from './controllers/getContragents.js';
 import { getReceiptInfo } from './controllers/receiptProduct/getReceiptInfo.js';
+import { getProductByWarehouseID } from './controllers/getProductsByWarehouseID.js';
+import { transferSomeProduct } from './controllers/transferSomeProduct.js';
 
 import UserController from './controllers/user.js'
 import cors from 'cors';
 import authMiddleware from '../middleware/auth-middleware.js';
+
+
 
 
 
@@ -51,6 +55,7 @@ router.post('/get_warehouse', cors(), getWarehouse);
 router.post('/get_category', cors(), getCategory);
 router.post('/get_unit', cors(), getUnit);
 router.post('/get_products', authMiddleware, getProduct);
+router.post('/warehouse/:id/get_products', cors(), getProductByWarehouseID);
 router.post('/addProduct', authMiddleware, addProduct);
 router.post('/get_sn_list', authMiddleware, getSnList);
 router.get('/get_nomenclature', authMiddleware, getNomenclature);
@@ -75,6 +80,7 @@ router.post('/rate_product', cors(), rateProduct);
 
 // Transfer
 router.post('/transfer_product', cors(), transferProduct);
+router.post('/transfer_products', cors(), transferSomeProduct);
 
 // Comments
 router.get('/get_comments/:id', cors(), getComments);
