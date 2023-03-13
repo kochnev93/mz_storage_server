@@ -1,5 +1,4 @@
 import pool from '../../db/db.js';
-import jwt from 'jsonwebtoken';
 import jwt_decode from 'jwt-decode';
 
 export async function addComment(req, res) {
@@ -15,7 +14,7 @@ export async function addComment(req, res) {
   const token = req.headers.authorization.split(' ')[1];
   const decode = jwt_decode(token);
   const id_author = decode.id;
-  
+
 
   const addComment = `
   INSERT INTO mz_comments
@@ -27,8 +26,24 @@ export async function addComment(req, res) {
   pool
     .execute(addComment)
     .then((result) => {
-      console.log(result[0])
-      res.json({ data: 'Комментарий добавлен'});
+      
+
+      const getLastComment = `
+      SELECT
+        id_comment,
+        comment,
+        (SELECT mz_user_login FROM mz_users WHERE id = mz_c.id_author) AS author,
+        date
+      FROM mz_comments mz_c
+      WHERE id_author ='${id_author}'
+      ORDER BY id_comment DESC LIMIT 1
+      `;
+
+      return pool.execute(getLastComment)
+     
+    })
+    .then(result => {
+      res.json({ data: result[0][0]});
     })
     .catch(function (err) {
       console.log(err);

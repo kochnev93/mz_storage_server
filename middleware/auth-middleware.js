@@ -8,7 +8,7 @@ export default async function (req, res, next) {
     }
 
     const token = req.headers.authorization.split(' ')[1];
-    console.log(token);
+    //console.log(token);
     
     if (!token) {
       throw ApiError.Unauthorized('Не авторизован');

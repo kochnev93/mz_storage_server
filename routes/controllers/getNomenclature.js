@@ -20,7 +20,6 @@ export async function getNomenclature(req, res, next) {
     .execute(queryNomenclature)
     .then((result) => {
       const data = result[0];
-      console.log(data);
       res.json({ data: data });
     })
     .catch(function (err) {

@@ -1,0 +1,13 @@
+
+
+ 11.03.2023, 15:14:16 ---> Пользователь (id: 2) обновил пользователя (id: 2): 
+ {"id":2,"login":"kochnev93","name":"Антон","surname":"Кочнев","phone":"89995285154","email":"kochnev93@mail.ru","role":"user","position":"Главный инженер ИТ","img":"25.02.2023, 13-11-56-1200.jpg","isBlocked":0,"last_activity":"2023-03-09T19:07:33.000Z","date_create":"2022-09-01T19:00:00.000Z","author":"kochnev93"} 
+ 
+ 11.03.2023, 15:57:52 ---> Пользователь (id: 2) обновил пользователя (id: 1): 
+ {"id":1,"login":"test3334","name":"Дест","surname":"Тестов","phone":"81112224453","email":"test@mail.ru","role":"admin","position":"тест должность 1","img":null,"isBlocked":0,"last_activity":"2023-03-09T19:01:57.000Z","date_create":"2022-09-01T19:00:00.000Z","author":"kochnev93"} 
+
+ 11.03.2023, 23:11:36 ---> Пользователь (id: 2) обновил пользователя (id: 1): 
+ {"id":1,"login":"test3334","name":"Дестм","surname":"Тестов","phone":"81112224453","email":"test@mail.ru","role":"admin","position":"тест должность 1","img":null,"isBlocked":0,"last_activity":"2023-03-09T19:01:57.000Z","date_create":"2022-09-01T19:00:00.000Z","author":"kochnev93"} 
+
+ 12.03.2023, 23:40:08 ---> Пользователь (id: 2) обновил пользователя (id: 1): 
+ {"id":1,"login":"test3334","name":"Дестм","surname":"Тестов","phone":"81112224453","email":"test@mail.ru","role":"viewer","position":"тест должность 1","img":null,"isBlocked":0,"last_activity":"2023-03-09T19:01:57.000Z","date_create":"2022-09-01T19:00:00.000Z","author":"kochnev93"} 

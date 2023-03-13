@@ -12,7 +12,6 @@ export async function getProductById(req, res, next){
   const product_id = req.params.id;
   const {warehouse_id } = req.body;
 
-  console.log(product_id, warehouse_id);
 
   if (product_id && warehouse_id){
     const query = `

@@ -24,7 +24,6 @@ export async function getComments(req, res) {
   pool
     .execute(comments)
     .then((result) => {
-      console.log(result[0])
       res.json({ data: result[0] });
     })
     .catch(function (err) {

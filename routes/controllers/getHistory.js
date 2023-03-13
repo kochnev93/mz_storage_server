@@ -72,48 +72,59 @@ export async function getProductHistoryById(req, res, next) {
     let historyReceipt;
 
     if (sn_accounting) {
+      // historyReceipt = `
+      // SELECT
+      //   mz_r.id_receipt,
+      //   mz_w.warehouse_title,
+      //   mz_r.count,
+      //   mz_r.contract,
+      //   mz_r.url_megaplan,
+      //   mz_r.date,
+      //   mz_u.mz_user_login
+      // FROM mz_receipt mz_r
+      // JOIN mz_users mz_u ON mz_u.id = mz_r.id_author
+      // JOIN mz_warehouse mz_w ON mz_w.id = mz_r.id_warehouse
+      // JOIN mz_receipt_document mz_rd mz_w ON mz_rd.id_receipt = mz_r.id_receipt
+      // WHERE mz_rd.id_product='${id_product}'
+      // `;
+
       historyReceipt = `
       SELECT 
         mz_r.id_receipt,
-        mz_w.warehouse_title, 
+        (SELECT warehouse_title FROM mz_warehouse WHERE id = mz_r.id_warehouse) AS warehouse_title,
         mz_r.count,
         mz_r.contract,
         mz_r.url_megaplan,
-        mz_r.date, 
-        mz_u.mz_user_login
-      FROM mz_receipt mz_r
-      JOIN mz_users mz_u ON mz_u.id = mz_r.id_author
-      JOIN mz_warehouse mz_w ON mz_w.id = mz_r.id_warehouse
-      WHERE mz_r.id_product='${id_product}'
+        mz_r.date,
+        (SELECT mz_user_login FROM mz_users WHERE id = mz_r.id_author) AS mz_user_login
+      FROM mz_receipt_document mz_rd
+      JOIN mz_receipt mz_r ON mz_r.id_receipt = mz_rd.id_receipt
+      WHERE mz_rd.id_product='${id_product}'
       `;
     } else {
       historyReceipt = `
       SELECT 
         mz_r.id_receipt,
-        mz_w.warehouse_title, 
+        (SELECT warehouse_title FROM mz_warehouse WHERE id = mz_r.id_warehouse) AS warehouse_title,
         mz_r.count,
         mz_r.contract,
         mz_r.url_megaplan,
         mz_r.date,
-        mz_u.mz_user_login
-      FROM mz_receipt mz_r
-      JOIN mz_users mz_u ON mz_u.id = mz_r.id_author
-      JOIN mz_warehouse mz_w ON mz_w.id = mz_r.id_warehouse
-      WHERE mz_r.id_product='${id_product}' AND mz_r.id_warehouse='${id_warehouse}'
+        (SELECT mz_user_login FROM mz_users WHERE id = mz_r.id_author) AS mz_user_login
+        FROM mz_receipt_document mz_rd
+        JOIN mz_receipt mz_r ON mz_r.id_receipt = mz_rd.id_receipt
+      WHERE mz_rd.id_product='${id_product}' AND mz_r.id_warehouse='${id_warehouse}'
       `;
     }
-
-
-
     pool
       .execute(historyReceipt)
       .then((res) => {
-        console.log('RESULT1', result);
+        console.log('HISTORY', res[0]);
         addItemsResult(res[0], 'receipt');
 
         let historyTransfer;
 
-        if(sn_accounting){
+        if (sn_accounting) {
           historyTransfer = `
           SELECT 
             mz_t.id_transfer,
@@ -124,7 +135,7 @@ export async function getProductHistoryById(req, res, next) {
             (SELECT mz_user_login FROM mz_users WHERE id = mz_t.id_author) AS mz_user_login
           FROM mz_transfers mz_t
           WHERE mz_t.id_product='${id_product}'`;
-        } else if (res[0].length !== 0){
+        } else if (res[0].length !== 0) {
           historyTransfer = `
           SELECT 
             mz_t.id_transfer,
@@ -151,7 +162,6 @@ export async function getProductHistoryById(req, res, next) {
         return pool.execute(historyTransfer);
       })
       .then((res) => {
-        console.log('RESULT2', result);
         addItemsResult(res[0], 'transfer');
 
         const historyRate = `
@@ -168,7 +178,6 @@ export async function getProductHistoryById(req, res, next) {
         return pool.execute(historyRate);
       })
       .then((res) => {
-        console.log('RESULT3', result);
         addItemsResult(res[0], 'rate');
       })
       .catch(function (err) {

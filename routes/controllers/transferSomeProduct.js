@@ -62,9 +62,13 @@ export async function transferSomeProduct(req, res, next) {
         const transferProduct = `
           INSERT INTO mz_products 
           (id_product, id_nomenclature, id_category, id_warehouse, count, min_count, date_guarantee, date_create, id_author)
-          VALUES ('${product.id}', '${id_nomenclature}', '${id_category}', '${warehouseTo[0].id}', '${product.countTransfer}', '${min_count}', '${new Date(date_guarantee).toLocaleDateString()}', ( SELECT NOW() ), '${id_author}' )`;
+          VALUES ('${product.id}', '${id_nomenclature}', '${id_category}', '${
+          warehouseTo[0].id
+        }', '${product.countTransfer}', '${min_count}', '${new Date(
+          date_guarantee
+        ).toLocaleDateString()}', ( SELECT NOW() ), '${id_author}' )`;
 
-        return pool.execute(transferProduct); 
+        return pool.execute(transferProduct);
       })
       .then((result) => {
         const transferLog = `
@@ -82,38 +86,32 @@ export async function transferSomeProduct(req, res, next) {
     return errorCounter === 0 ? true : false;
   };
 
-  async function chekProducts(product) {
-    // Сверяем данные с клиента и БД
-    const query = `
-    SELECT * 
-    FROM mz_products 
-    WHERE id_product='${product.id}' AND id_warehouse='${
-      warehouseFrom[0].id
-    }' AND ${
-      product.accounting_sn
-        ? `sn='${product.sn}'`
-        : `count = '${product.count}'`
-    }`;
+  async function checkProducts(products) {
 
-    console.log(query)
+    for(let i = 0; i < products.length; i++){
+      const query = `SELECT * FROM mz_products WHERE id_product='${
+        products[i].id
+      }' AND id_warehouse='${warehouseFrom[0].id}' AND ${
+        products[i].accounting_sn
+          ? `sn='${products[i].sn}'`
+          : `count = '${products[i].count}'`
+      }`;
 
-    pool.execute(query).then((result) => {
-      console.log('result', result[0]);
-      console.log('result-length', result[0].length);
-      console.log('RETURN', result[0].length === 1)
-      return result[0].length === 1 ? true : false;
-    });
+      let array = await pool.execute(query).then((result) => {
+        console.log('result-ppol', result[0]);
+        return result[0].length;
+      });
 
-    //return true
+      if (array !== 1) return false;
+    }
+
+    return true
   }
 
-  // Проверка данных полученных с клиента
-  const checkErrors = await products.every(chekProducts);
+  let check = await checkProducts(products);  
 
-  console.log('CHECK_ERROS', checkErrors)
-
-  if (checkErrors) {
-    //При успешной проверке
+  if (check) {
+    //При успешной проверке 
 
     products.forEach((product) => {
       if (product.accounting_sn) {
@@ -138,14 +136,17 @@ export async function transferSomeProduct(req, res, next) {
         const checkNewWarehouse = `SELECT * FROM mz_products WHERE id_product='${product.id}' AND id_warehouse='${warehouseTo[0].id}'`;
         let availabilityProduct;
 
-        pool.execute(checkNewWarehouse)
-          .then((result) => {
-            availabilityProduct = result[0].length !== 0 ? true : false;
-          });
+        pool.execute(checkNewWarehouse).then((result) => {
+          availabilityProduct = result[0].length !== 0 ? true : false;
+        });
 
-          console.log(availabilityProduct)
-          availabilityProduct ? updateProductNotSN(product) : insertProductNotSN(product)
+        console.log('availabilityProduct', availabilityProduct);
+        availabilityProduct
+          ? updateProductNotSN(product)
+          : insertProductNotSN(product);
       }
+
+      res.json({ data: 'Перемещение оформлено' });
     });
   } else {
     //При неудачной проверке

@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { test } from './controllers/test.js';
 import { getWarehouse } from './controllers/getWarehouse.js';
+import { getWarehouseList } from './controllers/getWarehouseList.js';
 import { getCategory } from './controllers/getCategory.js';
 import { addProduct } from './controllers/addProduct.js';
 import { getProduct } from './controllers/getProducts.js';
@@ -21,19 +22,16 @@ import { getContragents } from './controllers/getContragents.js';
 import { getReceiptInfo } from './controllers/receiptProduct/getReceiptInfo.js';
 import { getProductByWarehouseID } from './controllers/getProductsByWarehouseID.js';
 import { transferSomeProduct } from './controllers/transferSomeProduct.js';
+import { upload } from './controllers/upload.js';
+import { getRoles } from './controllers/getRoles.js';
+
+import { fileMidlleware } from '../middleware/upload-middleware.js';
 
 import UserController from './controllers/user.js'
+import ProductController from './controllers/product.js'
+
 import cors from 'cors';
 import authMiddleware from '../middleware/auth-middleware.js';
-
-
-
-
-
-
-
-
-
 
 
 
@@ -52,9 +50,14 @@ router.get('/test', cors(), test);
 router.post('/get_product/:id', cors(), getProductById);
 router.post('/get_history', cors(), getProductHistoryById);
 router.post('/get_warehouse', cors(), getWarehouse);
+router.get('/get_warehouse', cors(), getWarehouse);
+router.get('/get_warehouse/all', cors(), getWarehouseList);
 router.post('/get_category', cors(), getCategory);
+router.get('/get_category', cors(), getCategory);
 router.post('/get_unit', cors(), getUnit);
-router.post('/get_products', authMiddleware, getProduct);
+//router.post('/get_products', authMiddleware, getProduct);
+router.post('/get_products', authMiddleware, ProductController.getProducts);
+
 router.post('/warehouse/:id/get_products', cors(), getProductByWarehouseID);
 router.post('/addProduct', authMiddleware, addProduct);
 router.post('/get_sn_list', authMiddleware, getSnList);
@@ -63,8 +66,12 @@ router.post('/get_contragents', cors(), getContragents);
 // Users
 router.post('/register', cors(), UserController.registration);
 router.post('/auth', cors(), UserController.authorization);
-router.post('/getUsers', cors(), UserController.getUsers);
+router.get('/getUsers', cors(), UserController.getUsers);
 router.post('/test1', authMiddleware, UserController.test1);
+router.get('/get_roles', cors(), getRoles);
+router.post('/update_user', cors(), UserController.updateUser);
+router.get('/block_user/:id', cors(), UserController.blockUser);
+router.get('/unlock_user/:id', cors(), UserController.unlockUser);
 
 // Propperty
 router.get('/get_property/:category_id', cors(), getProperty);
@@ -86,4 +93,8 @@ router.post('/transfer_products', cors(), transferSomeProduct);
 router.get('/get_comments/:id', cors(), getComments);
 router.post('/add_comment', cors(), addComment);
 
-export default router;
+// Files
+router.post('/upload', fileMidlleware.single('avatar'), upload);
+
+export default router; 
+ 

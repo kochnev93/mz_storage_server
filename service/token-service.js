@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import jwt_decode from 'jwt-decode';
 import pool from '../db/db.js';
 
 class TokenService {
@@ -48,6 +49,13 @@ class TokenService {
     }
   }
 
+  parsingToken(req){
+    try{
+      return jwt_decode(req.headers.authorization.split(' ')[1]);
+    } catch(e){
+      return null;
+    }
+  }
 
 }
 

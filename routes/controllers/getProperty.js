@@ -9,7 +9,6 @@ export async function getProperty(req, res) {
 
   const category_id = req.params.category_id;
 
-  console.log(category_id);
 
   const query = `
   SELECT mz_p.id_property, mz_p.property, mz_pv.id, mz_pv.value
