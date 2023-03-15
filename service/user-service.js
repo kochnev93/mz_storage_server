@@ -118,7 +118,7 @@ class UserService {
         },
         refreshToken: tokens.refreshToken,
       };
-    }
+    } else return null;
   }
 
   async getUsers(next) {

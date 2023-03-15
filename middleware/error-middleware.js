@@ -5,5 +5,5 @@ export default function (err, req, res, next){
     if(err instanceof ApiError){
         return res.status(err.status).json({errorMessage: err.message, errors: err.error});
     }
-    return res.status(500).json({errorMessage: 'Ошибка сервера'})
+    return res.status(500).json({errorMessage: 'Ошибка сервера', errors: err.message})
 }

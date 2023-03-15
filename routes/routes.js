@@ -86,7 +86,8 @@ router.get('/get_receipt_info/:id_receipt', cors(), getReceiptInfo );
 router.post('/rate_product', cors(), rateProduct);
 
 // Transfer
-router.post('/transfer_product', cors(), transferProduct);
+//router.post('/transfer_product', cors(), transferProduct);
+router.post('/transfer_product', cors(), ProductController.transferProduct);
 router.post('/transfer_products', cors(), transferSomeProduct);
 
 // Comments
