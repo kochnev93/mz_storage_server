@@ -7,7 +7,50 @@ class ProductService {
     this.updateProduct = this.updateProduct.bind(this);
     this.transferProductWithSN = this.transferProductWithSN.bind(this);
     this.transferProductWithCount = this.transferProductWithCount.bind(this);
+    this.transferSomeProducts = this.transferSomeProducts.bind(this);
   }
+
+  async _checkAvailabilityProduct(product) {
+    //Проверка наличия товара на складе
+    let checkQuery;
+
+    if (product.accounting_sn) {
+      checkQuery = `SELECT * FROM mz_products WHERE sn='${product.sn}' AND id_warehouse='${product.old_warehouse}' `;
+    } else {
+      checkQuery = `SELECT * FROM mz_products WHERE count='${product.count}' AND id_warehouse='${product.old_warehouse}' `;
+    }
+
+    let checkProduct = await pool
+      .execute(checkQuery)
+      .then((result) => {
+        return result[0];
+      })
+      .catch(function (err) {
+        next(err);
+      });
+
+    if (checkProduct.length === 1) return true;
+
+    return false;
+  }
+
+  async _checkAvailabilitySomeProducts(products) {
+    // Проверка наличия товаров на складе, при перемещениии нескольких товаров
+
+    for(let i = 0; i < products.length; i++){
+      const query = `SELECT * FROM mz_products WHERE id_product='${products[i].id}' AND id_warehouse='${warehouseFrom[0].id}' AND ${
+        products[i].accounting_sn ? `sn='${products[i].sn}'` : `count = '${products[i].count}'`}`;
+
+      let check = await pool.execute(query).then((result) => {
+        return result[0].length;
+      });
+
+      if (check !== 1) return false;
+    }
+
+    return true
+  }
+
 
   requestСonditions(filter) {
     // Данный метод формирует условия поиска для SQL запроса
@@ -101,29 +144,7 @@ class ProductService {
     return { items: products, search: searchQuery };
   }
 
-  async checkAvailabilityProduct(product) {
-    //Проверка наличия товара на складе
-    let checkQuery;
 
-    if (product.accounting_sn) {
-      checkQuery = `SELECT * FROM mz_products WHERE sn='${product.sn}' AND id_warehouse='${product.old_warehouse}' `;
-    } else {
-      checkQuery = `SELECT * FROM mz_products WHERE count='${product.count}' AND id_warehouse='${product.old_warehouse}' `;
-    }
-
-    let checkProduct = await pool
-      .execute(checkQuery)
-      .then((result) => {
-        return result[0];
-      })
-      .catch(function (err) {
-        next(err);
-      });
-
-    if (checkProduct.length === 1) return true;
-
-    return false;
-  }
 
   async transferProductWithSN(transfer, id_author, next) {
     // Перемещение товара с серийным номером
@@ -138,7 +159,7 @@ class ProductService {
     } = transfer;
 
     // Проверяем наличие товара на складе
-    let checkProduct = await this.checkAvailabilityProduct(transfer);
+    let checkProduct = await this._checkAvailabilityProduct(transfer);
     if (!checkProduct)
       throw ApiError.BadRequest(
         `Продукт не найден на данном складе. Обновите страницу`
@@ -176,7 +197,7 @@ class ProductService {
     } = transfer;
 
     // Проверяем наличие товара на складе
-    let checkProduct = await this.checkAvailabilityProduct(transfer);
+    let checkProduct = await this._checkAvailabilityProduct(transfer);
     if (!checkProduct)
       throw ApiError.BadRequest(
         `Продукт не найден на данном складе, либо количество не совпадает с БД. Обновите страницу`
@@ -272,6 +293,46 @@ class ProductService {
     return false;
 
   }
+
+
+  async transferSomeProducts(transfers, id_author, next) {
+    const { warehouseFrom, warehouseTo, products } = transfers;
+
+    // Проверка наличия товаров на складе
+    let check = await _checkAvailabilitySomeProducts(products);
+
+    if(!check) throw ApiError.BadRequest(`Данные из формы не совпадают с данными в БД, пожалуйста, обновите страницу`);
+
+    // Массив результатов
+    let transerArray = [];
+
+    for(let i=0; i < products.length; i++){
+      try{
+        let transfer;
+
+        if(products[i].accounting_sn){
+          transfer = await this.transferProductWithSN(products[i], id_author, next)
+        } 
+        
+        if(!products[i].accounting_sn){
+          transfer = await this.transferProductWithCount(products[i], id_author, next)
+        }
+
+        if(transfer){
+          transerArray.push({...products[i], status_transfer: true })
+        } else{
+          transerArray.push({...products[i], status_transfer: false })
+        }
+      } catch (e){
+        transerArray.push({...products[i], status_transfer: false, error: e.message })
+      }
+    }
+
+
+    return transerArray;
+  }
+
+
 }
 
 export default new ProductService();
