@@ -88,7 +88,8 @@ router.post('/rate_product', cors(), rateProduct);
 // Transfer
 //router.post('/transfer_product', cors(), transferProduct);
 router.post('/transfer_product', cors(), ProductController.transferProduct);
-router.post('/transfer_products', cors(), transferSomeProduct);
+//router.post('/transfer_products', cors(), transferSomeProduct);
+router.post('/transfer_products', cors(), ProductController.transferSomeProducts);
 
 // Comments
 router.get('/get_comments/:id', cors(), getComments);
