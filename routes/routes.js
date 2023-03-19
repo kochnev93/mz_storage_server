@@ -24,7 +24,7 @@ import { getProductByWarehouseID } from './controllers/getProductsByWarehouseID.
 import { transferSomeProduct } from './controllers/transferSomeProduct.js';
 import { upload } from './controllers/upload.js';
 import { getRoles } from './controllers/getRoles.js';
-
+import { getTransfers } from './controllers/getTransfers.js';
 import { fileMidlleware } from '../middleware/upload-middleware.js';
 
 import UserController from './controllers/user.js'
@@ -32,6 +32,7 @@ import ProductController from './controllers/product.js'
 
 import cors from 'cors';
 import authMiddleware from '../middleware/auth-middleware.js';
+
 
 
 
@@ -58,7 +59,7 @@ router.post('/get_unit', cors(), getUnit);
 //router.post('/get_products', authMiddleware, getProduct);
 router.post('/get_products', authMiddleware, ProductController.getProducts);
 
-router.post('/warehouse/:id/get_products', cors(), getProductByWarehouseID);
+router.get('/warehouse/:id/get_products', cors(), getProductByWarehouseID);
 router.post('/addProduct', authMiddleware, addProduct);
 router.post('/get_sn_list', authMiddleware, getSnList);
 router.get('/get_nomenclature', authMiddleware, getNomenclature);
@@ -90,6 +91,9 @@ router.post('/rate_product', cors(), rateProduct);
 router.post('/transfer_product', cors(), ProductController.transferProduct);
 //router.post('/transfer_products', cors(), transferSomeProduct);
 router.post('/transfer_products', cors(), ProductController.transferSomeProducts);
+
+router.post('/get_transfers', cors(), getTransfers);
+
 
 // Comments
 router.get('/get_comments/:id', cors(), getComments);

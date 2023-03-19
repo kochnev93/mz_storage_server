@@ -100,19 +100,6 @@ class ProductController {
 
       if (user.role === 'viewer')
         throw ApiError.Forbidden('Недостаточно прав доступа');
-      console.log('*************************0', req.body);
-
-
-
-      // const {
-      //   accounting_sn,
-      //   new_warehouse,
-      //   old_warehouse,
-      //   id_product,
-      //   sn,
-      //   transfer_count,
-      //   count,
-      // } = transfer;
 
       let transferProducts = await ProductService.transferSomeProducts(
         req.body,
