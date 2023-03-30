@@ -47,17 +47,6 @@ export async function getProduct(req, res) {
     return result;
   };
 
-  console.log('TEST', requestСonditions());
-
-  const test = `
-  SELECT mz_p.id_product, mz_p.id_nomenclature, mz_n.name, mz_p.id_warehouse, mz_w.warehouse_title, mz_p.id_category, mz_c.category_title, mz_p.sn, mz_p.count, mz_n.accounting_sn
-  FROM mz_products mz_p
-  JOIN mz_warehouse mz_w ON mz_p.id_warehouse = mz_w.id
-  JOIN mz_category mz_c ON mz_p.id_category = mz_c.id
-  JOIN mz_nomenclature mz_n ON mz_p.id_nomenclature = mz_n.id
-  WHERE mz_p.id_warehouse IN (${warehouse}) AND mz_p.id_category IN (${category})
-  `;
-
   const test2 = `
   SELECT mz_p.id_product, mz_p.id_nomenclature, mz_n.name, mz_p.id_warehouse, mz_w.warehouse_title, mz_p.id_category, mz_c.category_title, mz_p.sn, mz_p.count, mz_n.accounting_sn
   FROM mz_products mz_p

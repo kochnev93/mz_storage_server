@@ -32,6 +32,8 @@ import ProductController from './controllers/product.js'
 
 import cors from 'cors';
 import authMiddleware from '../middleware/auth-middleware.js';
+import cookieParser from 'cookie-parser';
+
 
 
 
@@ -73,6 +75,7 @@ router.get('/get_roles', cors(), getRoles);
 router.post('/update_user', cors(), UserController.updateUser);
 router.get('/block_user/:id', cors(), UserController.blockUser);
 router.get('/unlock_user/:id', cors(), UserController.unlockUser);
+router.post('/refresh', cors(), UserController.refreshToken);
 
 // Propperty
 router.get('/get_property/:category_id', cors(), getProperty);

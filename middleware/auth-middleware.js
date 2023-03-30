@@ -4,14 +4,14 @@ import ApiError from '../exceptions/api-error.js';
 export default async function (req, res, next) {
   try {
     if(!req.headers.authorization){
-      throw ApiError.Unauthorized('Не авторизован');
+      throw ApiError.Unauthorized('Не авторизован - headers.auth');
     }
 
     const token = req.headers.authorization.split(' ')[1];
     //console.log(token);
     
     if (!token) {
-      throw ApiError.Unauthorized('Не авторизован');
+      throw ApiError.Unauthorized('Не авторизован - token');
     }
 
     const decoded = await jwt.verify(token, process.env.JWT_ACCESS_SECRET, function (err, decode){

@@ -11,6 +11,7 @@ import fileUpload from 'express-fileupload';
 
 
 dotenv.config();
+let secret = 'qwerty';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -18,18 +19,18 @@ const __dirname = path.resolve();
 
 app.use('/images', express.static(path.join(__dirname, 'images')))
 app.use(express.json());
-app.use(cookieParser());
+app.use(cookieParser(secret));
 app.use(express.urlencoded({ extended: true }));
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:3000',
+  credentials: true
+}));
 app.use('/api', serverRoutes);
-//app.use(authMiddleware);
+app.use(authMiddleware);
 app.use(errorMiddleware);
 app.use(fileUpload({
   createParentPath: true
 }))
-
-
-
 
 
 const start = async () => {

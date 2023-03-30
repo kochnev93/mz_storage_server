@@ -42,8 +42,7 @@ class UserService {
   }
 
   async authorization(login, password, next) {
-    const query = 
-    `SELECT 
+    const query = `SELECT 
     id,
     mz_user_login,
     mz_user_name,
@@ -98,10 +97,10 @@ class UserService {
       const tokens = await tokenService.generateTokens({
         id: user.id,
         login: user.mz_user_login,
-        role: user.mz_user_role, 
+        role: user.mz_user_role,
       });
 
-      pool.execute(queryLastActivity);  
+      pool.execute(queryLastActivity);
 
       return {
         client: {
@@ -173,9 +172,7 @@ class UserService {
         const result = data[0];
 
         if (result.changedRows === 0) {
-          throw ApiError.BadRequest(
-            `Пользователь с данным id не найден`
-          );
+          throw ApiError.BadRequest(`Пользователь с данным id не найден`);
         }
 
         return result;
@@ -200,9 +197,7 @@ class UserService {
         const result = data[0];
 
         if (result.changedRows === 0) {
-          throw ApiError.BadRequest(
-            `Пользователь с данным id не найден`
-          );
+          throw ApiError.BadRequest(`Пользователь с данным id не найден`);
         }
 
         return result;
@@ -227,9 +222,7 @@ class UserService {
         const result = data[0];
 
         if (result.changedRows === 0) {
-          throw ApiError.BadRequest(
-            `Пользователь с данным id не найден`
-          );
+          throw ApiError.BadRequest(`Пользователь с данным id не найден`);
         }
 
         return result;
@@ -239,6 +232,35 @@ class UserService {
       });
 
     return update;
+  }
+
+  async refreshToken(user, next) {
+    const check = await pool
+      .execute(`SELECT mz_user_isBlocked FROM mz_users WHERE id='${user.id}'`)
+      .then((data) => {
+        const result = data[0][0];
+        return result.mz_user_isBlocked ? false : true;
+      })
+      .catch(function (err) {
+        next(err);
+      });
+
+    if (!check) throw ApiError.Unauthorized('Пользователь заблокирован');
+
+    const tokens = await tokenService.generateTokens({
+      id: user.id,
+      login: user.login,
+      role: user.role,
+    });
+
+    await pool.execute(
+      `UPDATE mz_users SET mz_user_last_activity = ( SELECT NOW() ) WHERE id='${user.id}'`
+    );
+
+    return {
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken,
+    }
   }
 
 }

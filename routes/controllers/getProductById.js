@@ -7,6 +7,7 @@ export async function getProductById(req, res, next){
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'DELETE,GET,PATCH,POST,PUT',
     'Access-Control-Allow-Headers': 'Content-Type,Authorization',
+    'Cache-Control': 'no-cache, no-store, must-revalidate',
   });
 
   const product_id = req.params.id;

@@ -6,6 +6,7 @@ export async function getProductHistoryById(req, res, next) {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'DELETE,GET,PATCH,POST,PUT',
     'Access-Control-Allow-Headers': 'Content-Type,Authorization',
+    'Cache-Control': 'no-cache, no-store, must-revalidate',
   });
 
   const { id_product, id_warehouse, sn_accounting } = req.body;

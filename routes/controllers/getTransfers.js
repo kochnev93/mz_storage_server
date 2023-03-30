@@ -92,7 +92,7 @@ export async function getTransfers(req, res, next) {
 
       return result[0];
     })
-    .catch(function (err) {
+    .catch(function (err) { 
       next(err);
       return false;
     });

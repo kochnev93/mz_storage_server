@@ -12,6 +12,13 @@ class ProductController {
   }
 
   async getProducts(req, res, next) {
+    res.set({
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'DELETE,GET,PATCH,POST,PUT',
+      'Access-Control-Allow-Headers': 'Content-Type,Authorization',
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+    });
+
     try {
       // User
       const user = TokenService.parsingToken(req);
